@@ -25,6 +25,15 @@
 ### Segment drawing
 # A few utility functions to make it easy and re-usable to draw segmented prompts
 
+# git theming default: Variables for theming the git info prompt
+ZSH_THEME_GIT_PROMPT_PREFIX="git:("         # Prefix at the very beginning of the prompt, before the branch name
+ZSH_THEME_GIT_PROMPT_SUFFIX=")"             # At the very end of the prompt
+ZSH_THEME_GIT_PROMPT_DIRTY="*"              # Text to display if the branch is dirty
+ZSH_THEME_GIT_PROMPT_CLEAN=""               # Text to display if the branch is clean
+ZSH_THEME_RUBY_PROMPT_PREFIX="("
+ZSH_THEME_RUBY_PROMPT_SUFFIX=")"
+
+
 CURRENT_BG='NONE'
 
 # Characters
@@ -72,98 +81,6 @@ prompt_context() {
     prompt_segment magenta white "%{$fg_bold[white]%(!.%{%F{white}%}.)%}$USER@%m%{$fg_no_bold[white]%}"
   else
     prompt_segment yellow magenta "%{$fg_bold[magenta]%(!.%{%F{magenta}%}.)%}@$USER%{$fg_no_bold[magenta]%}"
-  fi
-}
-
-# Battery Level
-prompt_battery() {
-  HEART='♥ '
-
-  if [[ $(uname) == "Darwin" ]] ; then
-
-    function battery_is_charging() {
-      [ $(ioreg -rc AppleSmartBattery | grep -c '^.*"ExternalConnected"\ =\ No') -eq 1 ]
-    }
-
-    function battery_pct() {
-      local smart_battery_status="$(ioreg -rc "AppleSmartBattery")"
-      typeset -F maxcapacity=$(echo $smart_battery_status | grep '^.*"MaxCapacity"\ =\ ' | sed -e 's/^.*"MaxCapacity"\ =\ //')
-      typeset -F currentcapacity=$(echo $smart_battery_status | grep '^.*"CurrentCapacity"\ =\ ' | sed -e 's/^.*CurrentCapacity"\ =\ //')
-      integer i=$(((currentcapacity/maxcapacity) * 100))
-      echo $i
-    }
-
-    function battery_pct_remaining() {
-      if battery_is_charging ; then
-        battery_pct
-      else
-        echo "External Power"
-      fi
-    }
-
-    function battery_time_remaining() {
-      local smart_battery_status="$(ioreg -rc "AppleSmartBattery")"
-      if [[ $(echo $smart_battery_status | grep -c '^.*"ExternalConnected"\ =\ No') -eq 1 ]] ; then
-        timeremaining=$(echo $smart_battery_status | grep '^.*"AvgTimeToEmpty"\ =\ ' | sed -e 's/^.*"AvgTimeToEmpty"\ =\ //')
-        if [ $timeremaining -gt 720 ] ; then
-          echo "::"
-        else
-          echo "~$((timeremaining / 60)):$((timeremaining % 60))"
-        fi
-      fi
-    }
-
-    b=$(battery_pct_remaining)
-    if [[ $(ioreg -rc AppleSmartBattery | grep -c '^.*"ExternalConnected"\ =\ No') -eq 1 ]] ; then
-      if [ $b -gt 50 ] ; then
-        prompt_segment green white
-      elif [ $b -gt 20 ] ; then
-        prompt_segment yellow white
-      else
-        prompt_segment red white
-      fi
-      echo -n "%{$fg_bold[white]%}$HEART$(battery_pct_remaining)%%%{$fg_no_bold[white]%}"
-    fi
-  fi
-
-  if [[ $(uname) == "Linux" && -d /sys/module/battery ]] ; then
-
-    function battery_is_charging() {
-      ! [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]]
-    }
-
-    function battery_pct() {
-      if (( $+commands[acpi] )) ; then
-        echo "$(acpi | cut -f2 -d ',' | tr -cd '[:digit:]')"
-      fi
-    }
-
-    function battery_pct_remaining() {
-      if [ ! $(battery_is_charging) ] ; then
-        battery_pct
-      else
-        echo "External Power"
-      fi
-    }
-
-    function battery_time_remaining() {
-      if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
-        echo $(acpi | cut -f3 -d ',')
-      fi
-    }
-
-    b=$(battery_pct_remaining)
-    if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
-      if [ $b -gt 40 ] ; then
-        prompt_segment green white
-      elif [ $b -gt 20 ] ; then
-        prompt_segment yellow white
-      else
-        prompt_segment red white
-      fi
-      echo -n "%{$fg_bold[white]%}$HEART$(battery_pct_remaining)%%%{$fg_no_bold[white]%}"
-    fi
-
   fi
 }
 
@@ -243,8 +160,8 @@ prompt_git() {
     local number_of_stashes="$(git stash list -n1 2> /dev/null | wc -l)"
     if [[ $number_of_stashes -gt 0 ]]; then
       stashed=" ${number_of_stashes##*(  )}⚙"
-      bgclr='magenta'
-      fgclr='white'
+#      bgclr='magenta'
+#      fgclr='white'
     fi
 
     if [[ $number_added -gt 0 || $number_added_modified -gt 0 || $number_added_deleted -gt 0 ]]; then ready_commit=' ⚑'; fi
@@ -283,40 +200,6 @@ prompt_git() {
   fi
 }
 
-prompt_hg() {
-  local rev status
-  if $(hg id >/dev/null 2>&1); then
-    if $(hg prompt >/dev/null 2>&1); then
-      if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
-        # if files are not added
-        prompt_segment red white
-        st='±'
-      elif [[ -n $(hg prompt "{status|modified}") ]]; then
-        # if any modification
-        prompt_segment yellow black
-        st='±'
-      else
-        # if working copy is clean
-        prompt_segment green black
-      fi
-      print -n $(hg prompt "☿ {rev}@{branch}") $st
-    else
-      st=""
-      rev=$(hg id -n 2>/dev/null | sed 's/[^-0-9]//g')
-      branch=$(hg id -b 2>/dev/null)
-      if `hg st | grep -q "^\?"`; then
-        prompt_segment red black
-        st='±'
-      elif `hg st | grep -q "^[MA]"`; then
-        prompt_segment yellow black
-        st='±'
-      else
-        prompt_segment green black
-      fi
-      print -n "☿ $rev@$branch" $st
-    fi
-  fi
-}
 
 # Dir: current working directory
 prompt_dir() {
@@ -332,7 +215,7 @@ prompt_virtualenv() {
 }
 
 prompt_time() {
-  prompt_segment blue white "%{$fg_bold[white]%}%D{%a %e %b - %H:%M}%{$fg_no_bold[white]%}"
+  prompt_segment blue white "%{$fg_bold[white]%}%D{%Y-%m-%d %H:%M}%{$fg_no_bold[white]%}"
 }
 
 # Status:
@@ -354,12 +237,10 @@ build_prompt() {
   RETVAL=$?
   print -n "\n"
   prompt_status
-  prompt_battery
   prompt_time
   prompt_virtualenv
   prompt_dir
   prompt_git
-  prompt_hg
   prompt_end
   CURRENT_BG='NONE'
   print -n "\n"
