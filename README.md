@@ -27,21 +27,11 @@ In order to use the theme, you will first need:
 
 * Powerline compatible fonts like [Vim Powerline patched fonts](https://github.com/Lokaltog/powerline-fonts), [Input Mono](http://input.fontbureau.com/) or [Monoid](http://larsenwork.com/monoid/).
 * On Ubuntu like systems you'll need the `ttf-ancient-fonts` package to correctly display some unicode symbols that are not covered by the Powerline fonts above.
-* A ZSH framework like [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
-
 
 ## Installing
 
-After installing [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
-
-1. Download the theme [here](http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme)
-
-2. Put the file **agnosterzak.zsh-theme** in **$ZSH_CUSTOM/themes/**
-
-3. Configure the theme in your **~/.zshrc** file:
-
 ```bash
-ZSH_THEME="agnosterzak"
+source agnosterzak.zsh-theme
 ```
 
 ## Options
@@ -50,19 +40,6 @@ AgnosterZak is configurable. You can change colors and which segments you want
 or don't want to see. All options must be overridden in your **.zshrc** file.
 
 ## Segments
-
-### Battery Life
-
-The info will display in case of the laptop is not charging.
-If you're using Linux, install `acpi` package (i.e. `sudo apt install acpi`).
-
-![Preview](images/agnosterzak-02.png)
-
-|Battery status|Color
-|--------------|-----|
-|more than 39%|`green`
-|less than 40% and more than 19%|`yellow`
-|less than 20%|`red`
 
 ### Git
 ![git-preview-1](images/agnosterzak-git-a.png)
