@@ -47,7 +47,7 @@ prompt_context() {
   if [[ -n "$SSH_CLIENT" ]]; then
     prompt_segment magenta white "%{$fg_bold[white]%(!.%{%F{white}%}.)%}$USER@%m%{$fg_no_bold[white]%}"
   else
-    prompt_segment yellow magenta "%{$fg_bold[magenta]%(!.%{%F{magenta}%}.)%}@$USER%{$fg_no_bold[magenta]%}"
+    prompt_segment yellow magenta "%{$fg_bold[magenta]%(!.%{%F{magenta}%}.)%}$USER%{$fg_no_bold[magenta]%}"
   fi
 }
 
