@@ -235,8 +235,6 @@ prompt_status() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
-  print -n "\n"
-  prompt_status
   prompt_time
   prompt_virtualenv
   prompt_dir
@@ -244,6 +242,7 @@ build_prompt() {
   prompt_end
   CURRENT_BG='NONE'
   print -n "\n"
+  prompt_status
   prompt_context
   prompt_end
 }
