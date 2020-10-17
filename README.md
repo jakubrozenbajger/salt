@@ -25,7 +25,7 @@ or using plugin manager
 
 ```shell script
 zinit ice src"salt.zsh-theme"
-zinit light jakubrozenbajger/salt
+zinit light rozenj/salt
 ```
 
 #### Git icons
