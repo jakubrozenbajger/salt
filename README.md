@@ -1,60 +1,34 @@
-# AgnosterZak for oh-my-zsh ![Travis CI](https://travis-ci.org/zakaziko99/agnosterzak-ohmyzsh-theme.svg)
-
-AgnosterZak is a [oh-my-zsh shell](https://github.com/robbyrussell/oh-my-zsh) theme based on the
-[Powerline Vim plugin](https://github.com/Lokaltog/vim-powerline) &
-[Agnoster Theme](https://gist.github.com/agnoster/3712874).
+# AgnosterZak theme
+This theme is a fork of [AgnosterZak](https://github.com/zakaziko99/agnosterzak-ohmyzsh-theme)
 
 It currently shows:
-- Battery Life (in case of the laptop is not charging)
 - Timestamp
 - Current directory
 - Git status
+- Virtualenv status
 - User & Host status
 
 ## Preview
-
-![Preview](images/agnosterzak-01.png)
-
-
-## Other color schemes
-
-It's better to use AgnosterZak with a Solarized dark color scheme or others dark color schemes.
+![Preview](img/prompt.png)
 
 
 ## Requirements
-
-In order to use the theme, you will first need:
-
-* Powerline compatible fonts like [Vim Powerline patched fonts](https://github.com/Lokaltog/powerline-fonts), [Input Mono](http://input.fontbureau.com/) or [Monoid](http://larsenwork.com/monoid/).
-* On Ubuntu like systems you'll need the `ttf-ancient-fonts` package to correctly display some unicode symbols that are not covered by the Powerline fonts above.
+ - Powerline fonts
 
 ## Installing
 
-```bash
+```shell script
 source agnosterzak.zsh-theme
 ```
 
-## Options
+or using plugin manager 
 
-AgnosterZak is configurable. You can change colors and which segments you want
-or don't want to see. All options must be overridden in your **.zshrc** file.
+```shell script
+zinit ice src"agnosterzak.zsh-theme"
+zinit light jakubrozenbajger/agnosterzak-ohmyzsh-theme
+```
 
-## Segments
-
-### Git
-![git-preview-1](images/agnosterzak-git-a.png)
-
-![git-preview-2](images/agnosterzak-git-b.png)
-
-#### Color States
-|Background Color & Foreground Color|Meaning
-|----------------|----------------|
-|![git-clean](images/agnosterzak-git-1.png)|Absolutely clean state
-|![git-stash](images/agnosterzak-git-2.png)|There are stashed files
-|![git-untracked](images/agnosterzak-git-3.png)|There are new untracked files
-|![git-modified](images/agnosterzak-git-4.png)|There are modified or deleted files but unstaged
-
-#### Icons
+#### Git icons
 |Icon|Meaning
 |----|-------|
 |`✔`|clean directory
@@ -71,9 +45,3 @@ or don't want to see. All options must be overridden in your **.zshrc** file.
 |`<B>`|bisect state on the current branch
 |`>M<`|Merge state on the current branch
 |`>R>`|Rebase state on the current branch
-
-## Credits
-
-This theme is highly inspired by the following themes:
-- [Powerline](https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme)
-- [Agnoster](https://gist.github.com/agnoster/3712874)
