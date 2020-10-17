@@ -1,5 +1,5 @@
-# AgnosterZak theme
-This theme is a fork of [AgnosterZak](https://github.com/zakaziko99/agnosterzak-ohmyzsh-theme)
+# salt - simple Agnoster-like theme
+This is a fork of [AgnosterZak](https://github.com/zakaziko99/agnosterzak-ohmyzsh-theme)
 
 It currently shows:
 - Timestamp
@@ -18,14 +18,14 @@ It currently shows:
 ## Installing
 
 ```shell script
-source agnosterzak.zsh-theme
+source salt.zsh-theme
 ```
 
 or using plugin manager 
 
 ```shell script
-zinit ice src"agnosterzak.zsh-theme"
-zinit light jakubrozenbajger/agnosterzak-ohmyzsh-theme
+zinit ice src"salt.zsh-theme"
+zinit light jakubrozenbajger/salt
 ```
 
 #### Git icons
