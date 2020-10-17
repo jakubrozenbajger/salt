@@ -1,6 +1,9 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
 
+#disable default venv prompt
+VIRTUAL_ENV_DISABLE_PROMPT=true
+
 CURRENT_BG='NONE'
 
 # Characters
@@ -54,11 +57,6 @@ prompt_context() {
 # Git: branch/detached head, dirty status
 prompt_git() {
 #«»±˖˗‑‐‒ ━ ✚‐↔←↑↓→↭⇎⇔⋆━◂▸◄►◆☀★☗☊✔✖❮❯⚑⚙
-  local PL_BRANCH_CHAR
-  () {
-    local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    PL_BRANCH_CHAR="$BRANCH"
-  }
   local ref dirty mode repo_path clean has_upstream
   local modified untracked added deleted tagged stashed
   local ready_commit git_status bgclr fgclr
@@ -163,7 +161,7 @@ prompt_git() {
 
     prompt_segment $bgclr $fgclr
 
-    print -n "%{$fg_bold[$fgclr]%}${ref/refs\/heads\//$PL_BRANCH_CHAR $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{$fg_no_bold[$fgclr]%}"
+    print -n "%{$fg_bold[$fgclr]%}${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{$fg_no_bold[$fgclr]%}"
   fi
 }
 
@@ -176,8 +174,8 @@ prompt_dir() {
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
-  if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
-    prompt_segment blue black "(`basename $virtualenv_path`)"
+  if [[ -n $virtualenv_path ]]; then
+    prompt_segment white black " `basename $virtualenv_path`"
   fi
 }
 
@@ -203,8 +201,8 @@ prompt_status() {
 build_prompt() {
   RETVAL=$?
   prompt_time
-  prompt_virtualenv
   prompt_dir
+  prompt_virtualenv
   prompt_git
   prompt_end
   CURRENT_BG='NONE'
