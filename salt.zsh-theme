@@ -6,6 +6,15 @@ VIRTUAL_ENV_DISABLE_PROMPT=true
 
 CURRENT_BG='NONE'
 
+
+# Characters
+RSEGMENT_SEPARATOR="\ue0b2"
+
+# Vi mode
+VICMD_INDICATOR="NORMAL"
+VIINS_INDICATOR="INSERT"
+
+
 # Characters
 SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
@@ -30,6 +39,41 @@ prompt_segment() {
   CURRENT_BG=$1
   [[ -n $3 ]] && print -n $3
 }
+
+# Begin an RPROMPT segment
+# Takes two arguments, background and foreground. Both can be omitted,
+# rendering default background/foreground.
+# https://gist.github.com/rjorgenson/83094662ace4d3b82b95
+rprompt_segment() {
+  local bg fg
+  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
+  if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
+    echo -n "%{%K{$CURRENT_BG}%F{$1}%}$RSEGMENT_SEPARATOR%{$bg%}%{$fg%}"
+  else
+    echo -n "%F{$1}%{%K{default}%}$RSEGMENT_SEPARATOR%{$bg%}%{$fg%}"
+  fi
+  CURRENT_BG=$1
+  # [[ -n $3 ]] && echo -n $3
+  [[ -n $3 ]] && echo -n "%{$fg_bold[$2]%} $3 %{$reset_color%}"
+}
+
+# Vi mode
+prompt_vi_mode() {
+  local color mode
+  is_normal() {
+    test -n "${${KEYMAP/vicmd/$VICMD_INDICATOR}/(main|viins)/}"  # param expans
+  }
+  if is_normal; then
+    color=green
+    mode="$VICMD_INDICATOR"
+  else
+    color=blue
+    mode="$VIINS_INDICATOR"
+  fi
+  rprompt_segment $color white $mode
+}
+
 
 # End the prompt, closing any open segments
 prompt_end() {
@@ -211,5 +255,13 @@ build_prompt() {
   prompt_context
   prompt_end
 }
+# Right prompt
+build_rprompt() {
+  prompt_vi_mode
+  # prompt_timestamp
+  echo -n " "  # rprompt looks awful without a space at the end
+}
 
 PROMPT='%{%f%b%k%}$(build_prompt) '
+RPROMPT='%{%f%b%k%}$(build_rprompt)'
+
