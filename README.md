@@ -27,6 +27,14 @@ or using plugin manager
 zinit light rozenj/salt
 ```
 
+### Settings
+|Variable          |Default value|
+|------------------|-------------|
+|`SALT_PROMPT_VI`  |true         |
+|`SALT_PROMPT_VENV`|true         |
+|`SALT_PROMPT_GIT` |true         |
+
+
 #### Git icons
 |Icon|Meaning
 |----|-------|

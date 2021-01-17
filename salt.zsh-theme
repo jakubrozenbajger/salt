@@ -1,8 +1,12 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
+# prompt settings
+SALT_PROMPT_VI=${SALT_PROMPT_VI:-true}
+SALT_PROMPT_VENV=${SALT_PROMPT_VENV:-true}
+SALT_PROMPT_GIT=${SALT_PROMPT_GIT:-true}
 
 #disable default venv prompt
-VIRTUAL_ENV_DISABLE_PROMPT=true
+"$SALT_PROMPT_VENV" && VIRTUAL_ENV_DISABLE_PROMPT=true
 
 CURRENT_BG='NONE'
 
@@ -226,13 +230,13 @@ build_prompt() {
   RETVAL=$?
   prompt_time
   prompt_dir
-  prompt_virtualenv
-  prompt_git
+  "$SALT_PROMPT_VENV" && prompt_virtualenv
+  "$SALT_PROMPT_GIT" && prompt_git
   prompt_end
   CURRENT_BG='NONE'
   print -n "\n"
   prompt_status
-  prompt_vi_mode
+  "$SALT_PROMPT_VI" && prompt_vi_mode
   prompt_context
   prompt_end
 }
