@@ -1,6 +1,7 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
 # prompt settings
+PROMPT_TIME=${SALT_PROMPT_TIME:-false}
 PROMPT_VI=${SALT_PROMPT_VI:-true}
 PROMPT_VENV=${SALT_PROMPT_VENV:-true}
 PROMPT_GIT=${SALT_PROMPT_GIT:-true}
@@ -231,7 +232,7 @@ prompt_status() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
-#  prompt_time
+  "$PROMPT_TIME" && prompt_time
   prompt_status
   prompt_context
   prompt_dir

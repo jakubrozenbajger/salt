@@ -30,9 +30,10 @@ zinit light rozenj/salt
 ### Settings
 |Variable                   |Default value  |
 |---------------------------|---------------|
-|`SALT_PROMPT_VI`           |true           |
-|`SALT_PROMPT_VENV`         |true           |
-|`SALT_PROMPT_GIT`          |true           |
+|`SALT_PROMPT_TIME`         |`false`        |
+|`SALT_PROMPT_VI`           |`true`         |
+|`SALT_PROMPT_VENV`         |`true`         |
+|`SALT_PROMPT_GIT`          |`true`         |
 |`SALT_SEGMENT_SEPARATOR`   |<empty>        |
 |`SALT_ENDL_SEPARATOR`      |<empty>        |
 
