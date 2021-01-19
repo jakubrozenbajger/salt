@@ -200,7 +200,7 @@ prompt_git() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment cyan white "%{$fg_bold[white]%}%~%{$fg_no_bold[white]%}"
+  prompt_segment blue white "%{$fg_bold[white]%}%~%{$fg_no_bold[white]%}"
 }
 
 # Virtualenv: current working virtualenv
@@ -212,7 +212,7 @@ prompt_virtualenv() {
 }
 
 prompt_time() {
-  prompt_segment blue white "%{$fg_bold[white]%}%D{%Y-%m-%d %H:%M}%{$fg_no_bold[white]%}"
+  prompt_segment cyan white "%{$fg_bold[white]%}%D{%Y-%m-%d %H:%M}%{$fg_no_bold[white]%}"
 }
 
 # Status:
