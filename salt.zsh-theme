@@ -1,12 +1,16 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
 # prompt settings
-SALT_PROMPT_VI=${SALT_PROMPT_VI:-true}
-SALT_PROMPT_VENV=${SALT_PROMPT_VENV:-true}
-SALT_PROMPT_GIT=${SALT_PROMPT_GIT:-true}
+PROMPT_VI=${SALT_PROMPT_VI:-true}
+PROMPT_VENV=${SALT_PROMPT_VENV:-true}
+PROMPT_GIT=${SALT_PROMPT_GIT:-true}
+
+SEGMENT_SEPARATOR="${SALT_SEGMENT_SEPARATOR:-}"
+ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
+
 
 #disable default venv prompt
-"$SALT_PROMPT_VENV" && VIRTUAL_ENV_DISABLE_PROMPT=true
+"$PROMPT_VENV" && VIRTUAL_ENV_DISABLE_PROMPT=true
 
 CURRENT_BG='NONE'
 
@@ -18,8 +22,6 @@ VIINS_INDICATOR="I"
 
 
 # Characters
-#SEGMENT_SEPARATOR="\ue0b0"
-SEGMENT_SEPARATOR=""
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
@@ -63,7 +65,7 @@ prompt_vi_mode() {
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
-    print -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+    print -n " %{%k%F{$CURRENT_BG}%}$ENDL_SEPARATOR"
   else
     print -n "%{%k%}"
   fi
@@ -230,15 +232,15 @@ prompt_status() {
 build_prompt() {
   RETVAL=$?
 #  prompt_time
+  prompt_status
   prompt_context
   prompt_dir
-  "$SALT_PROMPT_VENV" && prompt_virtualenv
-  "$SALT_PROMPT_GIT" && prompt_git
+  "$PROMPT_VENV" && prompt_virtualenv
+  "$PROMPT_GIT" && prompt_git
   prompt_end
   CURRENT_BG='NONE'
   print -n "\n"
-  prompt_status
-  "$SALT_PROMPT_VI" && prompt_vi_mode
+  "$PROMPT_VI" && prompt_vi_mode
   prompt_end
 }
 
