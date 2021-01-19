@@ -18,7 +18,8 @@ VIINS_INDICATOR="I"
 
 
 # Characters
-SEGMENT_SEPARATOR="\ue0b0"
+#SEGMENT_SEPARATOR="\ue0b0"
+SEGMENT_SEPARATOR=""
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
@@ -228,7 +229,8 @@ prompt_status() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
-  prompt_time
+#  prompt_time
+  prompt_context
   prompt_dir
   "$SALT_PROMPT_VENV" && prompt_virtualenv
   "$SALT_PROMPT_GIT" && prompt_git
@@ -237,7 +239,6 @@ build_prompt() {
   print -n "\n"
   prompt_status
   "$SALT_PROMPT_VI" && prompt_vi_mode
-  prompt_context
   prompt_end
 }
 
