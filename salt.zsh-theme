@@ -28,7 +28,7 @@ SYMBOL_JOB="\u2699"
 
 # Git symbols
 PLUSMINUS="\u00b1"
-BRANCH="\ue0a0"
+BRANCH="\uf126"
 
 # autoload -U colors && colors # needed for fg_bold and fg_no_bold, bg_bold, bg_no_bold
 
@@ -76,7 +76,7 @@ prompt_git() {
 
   local ref dirty mode repo_path clean has_upstream
   local modified untracked added deleted tagged stashed
-  local ready_commit git_status bgclr fgclr
+  local ready_commit git_status g_color
   local commits_diff commits_ahead commits_behind has_diverged to_push to_pull
 
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
@@ -86,12 +86,10 @@ prompt_git() {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
   if [[ -n $dirty ]]; then
     clean=''
-    bgclr='yellow'
-    fgclr='black'
+    g_color='yellow'
   else
     clean=' ✔'
-    bgclr='green'
-    fgclr='white'
+    g_color='green'
   fi
 
   local upstream; upstream=$(git rev-parse --symbolic-full-name --abbrev-ref "@{upstream}" 2> /dev/null)
@@ -109,8 +107,7 @@ prompt_git() {
   local number_modified; number_modified=$(\grep -c "^.M" <<< "${git_status}")
   if [[ $number_modified -gt 0 ]]; then
     modified=" $number_modified●"
-    bgclr='red'
-    fgclr='white'
+    g_color='red'
   fi
 
   local number_added_modified; number_added_modified=$(\grep -c "^M" <<< "${git_status}")
@@ -124,8 +121,7 @@ prompt_git() {
   local number_deleted; number_deleted=$(\grep -c "^.D" <<< "${git_status}")
   if [[ $number_deleted -gt 0 ]]; then
     deleted=" $number_deleted‒"
-    bgclr='red'
-    fgclr='white'
+    g_color='red'
   fi
 
   local number_added_deleted; number_added_deleted=$(\grep -c "^D" <<< "${git_status}")
@@ -141,8 +137,6 @@ prompt_git() {
   local number_of_stashes; number_of_stashes="$(git stash list 2> /dev/null | wc -l)"
   if [[ $number_of_stashes -gt 0 ]]; then
     stashed=" ${number_of_stashes##*(  )}⚙"
-#    bgclr='magenta'
-#    fgclr='white'
   fi
 
   if [[ $number_added -gt 0 || $number_added_modified -gt 0 || $number_added_deleted -gt 0 ]]; then ready_commit=' ⚑'; fi
@@ -158,14 +152,8 @@ prompt_git() {
 
   has_diverged=false
   if [[ $commits_ahead -gt 0 && $commits_behind -gt 0 ]]; then has_diverged=true; fi
-  if [[ $has_diverged == false && $commits_ahead -gt 0 ]]; then
-    if [[ $bgclr == 'red' || $bgclr == 'magenta' ]]; then
-      to_push=" ${fg_bold[white]}↑$commits_ahead${fg_bold[$fgclr]}"
-    else
-      to_push=" ${fg_bold[black]}↑$commits_ahead${fg_bold[$fgclr]}"
-    fi
-  fi
-  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" ${fg_bold[magenta]}↓$commits_behind${fg_bold[$fgclr]}"; fi
+  if [[ $has_diverged == false && $commits_ahead -gt 0 ]]; then to_push=" ↑$commits_ahead"; fi
+  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" ${fg_bold[red]}↓$commits_behind${fg_bold[$g_color]}"; fi
 
   if [[ -e "${repo_path}/BISECT_LOG" ]]; then
     mode=" <B>"
@@ -175,22 +163,22 @@ prompt_git() {
     mode=" >R>"
   fi
 
-  print -n "%K{$bgclr}%F{$fgclr} "
-  print -n "%{${fg_bold[$fgclr]}%}${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{${fg_no_bold[$fgclr]}%}"
-  print -n " %f%k"
+  print -n "%F{$g_color} "
+  print -n "%{${fg_bold[$g_color]}%}${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{${fg_no_bold[$g_color]}%}"
+  print -n " %f"
 }
 
 
 # Dir: current working directory
 prompt_dir() {
-  print -n "%S %~ %s"
+  print -n "%~ "
 }
 
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path ]]; then
-    print -n "%{${bg_bold[blue]}%}  $(basename "$virtualenv_path")%{${bg_no_bold[blue]}%} "
+    print -n "%{${fg_bold[blue]}%}  $(basename "$virtualenv_path")%{${fg_no_bold[blue]}%} "
   fi
 }
 
@@ -219,6 +207,7 @@ prompt_status() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
+  print -n "\n"
   prompt_status
   "$PROMPT_DATE" && prompt_date
   "$PROMPT_TIME" && prompt_time
