@@ -15,8 +15,6 @@ ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
 #disable default venv prompt
 "$PROMPT_VENV" && export VIRTUAL_ENV_DISABLE_PROMPT=true
 
-CURRENT_BG='NONE'
-
 # Vi mode indicators
 #VICMD_INDICATOR="NORMAL"
 #VIINS_INDICATOR="INSERT"
@@ -32,51 +30,28 @@ SYMBOL_JOB="\u2699"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 
-autoload -U colors && colors # needed for fg_bold and fg_no_bold
-
-# Begin a segment
-# Takes two arguments, background and foreground. Both can be omitted,
-# rendering default background/foreground.
-prompt_segment() {
-  local bg fg
-  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
-  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
-  if [[ $CURRENT_BG != 'NONE' && $1 != "$CURRENT_BG" ]]; then
-    print -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
-  else
-    print -n "%{$bg%}%{$fg%} "
-  fi
-  CURRENT_BG=$1
-  [[ -n $3 ]] && print -n "$3"
-}
+# autoload -U colors && colors # needed for fg_bold and fg_no_bold, bg_bold, bg_no_bold
 
 # Vi mode
 prompt_vi_mode() {
-  local color mode
+  local mode
   is_normal() {
     test -n "${${KEYMAP/vicmd/$VICMD_INDICATOR}/(main|viins)/}"  # param expans
   }
   if is_normal; then
-    color=green
     mode="$VICMD_INDICATOR"
+#    print -n "%B $mode %b"
+    print -n "%S%B $mode %b%s"
   else
-    color=blue
     mode="$VIINS_INDICATOR"
+#    print -n "%S%B $mode %b%s"
+    print -n "%B $mode %b"
   fi
-  # shellcheck disable=SC2154
-  prompt_segment $color white "%{${fg_bold[white]}%}$mode%{${fg_no_bold[white]}%}"
 }
 
-
-# End the prompt, closing any open segments
 prompt_end() {
-  if [[ -n $CURRENT_BG ]]; then
-    print -n " %{%k%F{$CURRENT_BG}%}$ENDL_SEPARATOR"
-  else
-    print -n "%{%k%}"
-  fi
+  print -n "%{%k%}"
   print -n "%{%f%}"
-  CURRENT_BG=''
 }
 
 ### Prompt components
@@ -85,10 +60,10 @@ prompt_end() {
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
   if [[ -n "$SSH_CLIENT" ]]; then
-    prompt_segment magenta white "%{${fg_bold[white]}%(!.%{%F{white}%}.)%}$USER@%m%{${fg_no_bold[white]}%}"
+    print -n "%{${fg_bold[white]}%(!.%{%F{white}%}.)%}$USER@%m%{${fg_no_bold[white]}%}"
   else
     if ! "$PROMPT_USER_SMART" || [ "$UID" -ne 1000 ]; then
-      prompt_segment yellow magenta "%{${fg_bold[magenta]}%(!.%{%F{magenta}%}.)%}$USER%{${fg_no_bold[magenta]}%}"
+      print -n "%n "
     fi
   fi
 }
@@ -200,31 +175,31 @@ prompt_git() {
     mode=" >R>"
   fi
 
-  prompt_segment $bgclr $fgclr
-
+  print -n "%K{$bgclr}%F{$fgclr} "
   print -n "%{${fg_bold[$fgclr]}%}${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{${fg_no_bold[$fgclr]}%}"
+  print -n " %f%k"
 }
 
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue white "%{${fg_bold[white]}%}%~%{${fg_no_bold[white]}%}"
+  print -n "%S %~ %s"
 }
 
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path ]]; then
-    prompt_segment white black " $(basename "$virtualenv_path")"
+    print -n "%{${bg_bold[blue]}%}  $(basename "$virtualenv_path")%{${bg_no_bold[blue]}%} "
   fi
 }
 
 prompt_date() {
-  prompt_segment cyan white "%{${fg_bold[white]}%}%D{%Y-%m-%d}%{${fg_no_bold[white]}%}"
+  print -n " %D{%Y-%m-%d} "
 }
 
 prompt_time() {
-  prompt_segment cyan white "%{${fg_bold[white]}%}%D{%H:%M}%{${fg_no_bold[white]}%}"
+  print -n " %D{%H:%M} "
 }
 
 # Status:
@@ -234,11 +209,11 @@ prompt_time() {
 prompt_status() {
   local symbols
   symbols=""
-  [[ $RETVAL -ne 0 ]] && symbols="$symbols%{%F{red}%}$SYMBOL_CMD_ERR $RETVAL"
-  [[ $UID -eq 0 ]] && symbols="$symbols%{%F{yellow}%}$SYMBOL_ROOT"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols%{%F{cyan}%}$SYMBOL_JOB"
+  [[ $RETVAL -ne 0 ]] && symbols="${symbols+$symbols }%{%F{red}%}$SYMBOL_CMD_ERR $RETVAL%f"
+  [[ $UID -eq 0 ]] && symbols="${symbols+$symbols }%{%F{yellow}%}$SYMBOL_ROOT%f"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="${symbols+$symbols }%{%F{cyan}%}$SYMBOL_JOB%f"
 
-  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
+  [[ -n "$symbols" ]] && print -n "$symbols"
 }
 
 ## Main prompt
@@ -252,11 +227,10 @@ build_prompt() {
   "$PROMPT_VENV" && prompt_virtualenv
   "$PROMPT_GIT" && prompt_git
   prompt_end
-  CURRENT_BG='NONE'
   print -n "\n"
   "$PROMPT_VI" && prompt_vi_mode
   prompt_end
 }
 
 # shellcheck disable=SC2016,SC2034
-PROMPT='%{%f%b%k%}$(build_prompt) '
+PROMPT='%{%f%b%k%}%B% $(build_prompt)%b'
