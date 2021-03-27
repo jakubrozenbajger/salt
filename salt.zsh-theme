@@ -1,10 +1,12 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
 # prompt settings
-PROMPT_TIME=${SALT_PROMPT_TIME:-false}
+PROMPT_DATE=${SALT_PROMPT_DATE:-false}
+PROMPT_TIME=${SALT_PROMPT_TIME:-true}
 PROMPT_VI=${SALT_PROMPT_VI:-true}
 PROMPT_VENV=${SALT_PROMPT_VENV:-true}
 PROMPT_GIT=${SALT_PROMPT_GIT:-true}
+PROMPT_USER_SMART=${SALT_PROMPT_USER_SMART:-true}
 
 SEGMENT_SEPARATOR="${SALT_SEGMENT_SEPARATOR:-}"
 ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
@@ -82,7 +84,9 @@ prompt_context() {
   if [[ -n "$SSH_CLIENT" ]]; then
     prompt_segment magenta white "%{$fg_bold[white]%(!.%{%F{white}%}.)%}$USER@%m%{$fg_no_bold[white]%}"
   else
-    prompt_segment yellow magenta "%{$fg_bold[magenta]%(!.%{%F{magenta}%}.)%}$USER%{$fg_no_bold[magenta]%}"
+    if ! "$PROMPT_USER_SMART" || [ "$UID" -ne 1000 ]; then
+      prompt_segment yellow magenta "%{$fg_bold[magenta]%(!.%{%F{magenta}%}.)%}$USER%{$fg_no_bold[magenta]%}"
+    fi
   fi
 }
 
@@ -211,8 +215,12 @@ prompt_virtualenv() {
   fi
 }
 
+prompt_date() {
+  prompt_segment cyan white "%{$fg_bold[white]%}%D{%Y-%m-%d}%{$fg_no_bold[white]%}"
+}
+
 prompt_time() {
-  prompt_segment cyan white "%{$fg_bold[white]%}%D{%Y-%m-%d %H:%M}%{$fg_no_bold[white]%}"
+  prompt_segment cyan white "%{$fg_bold[white]%}%D{%H:%M}%{$fg_no_bold[white]%}"
 }
 
 # Status:
@@ -232,8 +240,9 @@ prompt_status() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
-  "$PROMPT_TIME" && prompt_time
   prompt_status
+  "$PROMPT_DATE" && prompt_date
+  "$PROMPT_TIME" && prompt_time
   prompt_context
   prompt_dir
   "$PROMPT_VENV" && prompt_virtualenv
