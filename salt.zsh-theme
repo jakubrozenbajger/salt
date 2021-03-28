@@ -32,8 +32,6 @@ SYMBOL_JOB="\u2699"
 PLUSMINUS="\u00b1"
 BRANCH="\uf126"
 
-# autoload -U colors && colors # needed for fg_bold and fg_no_bold, bg_bold, bg_no_bold
-
 # Vi mode
 prompt_vi_mode() {
   local mode
@@ -150,7 +148,7 @@ prompt_git() {
   has_diverged=false
   if [[ $commits_ahead -gt 0 && $commits_behind -gt 0 ]]; then has_diverged=true; fi
   if [[ $has_diverged == false && $commits_ahead -gt 0 ]]; then to_push=" ↑$commits_ahead"; fi
-  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" ${fg_bold[red]}↓$commits_behind${fg_bold[$g_prompt_color]}"; fi
+  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" %f%F{yellow} ↓$commits_behind %f%F{$g_prompt_color}"; fi
 
   if [[ -e "${repo_path}/BISECT_LOG" ]]; then
     mode=" <B>"
