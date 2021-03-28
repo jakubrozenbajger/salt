@@ -22,11 +22,7 @@ VIINS_INDICATOR="INSERT"
 #VIINS_INDICATOR="I"
 
 # Status symbols
-SYMBOL_CMD=" $ "
-SYMBOL_CMD_SU="%{%F{red}%} # %{%f%}"
-SYMBOL_ERR="\u2718"
-SYMBOL_ROOT="\u26a1"
-SYMBOL_JOB="\u2699"
+
 
 # Git symbols
 PLUSMINUS="\u00b1"
@@ -181,21 +177,16 @@ prompt_time() {
   print -n " %D{%H:%M} "
 }
 
-# Status:
-# - was there an error
-# - am I root
-# - are there background jobs?
+SYMBOL_ERR="\u2718"
+SYMBOL_JOB="\u2699"
 prompt_status() {
-  local symbols
-  symbols=""
-  [[ $RETVAL -ne 0 ]] && symbols="${symbols:+$symbols }%{%F{red}%}$SYMBOL_ERR $RETVAL%f"
-  [[ $UID -eq 0 ]] && symbols="${symbols:+$symbols }%{%F{yellow}%}$SYMBOL_ROOT%f"
-  local jobs_no; jobs_no=$(jobs -l | wc -l)
-  [[ "$jobs_no" -gt 0 ]] && symbols="${symbols:+$symbols }%{%F{cyan}%}$SYMBOL_JOB $jobs_no%f"
-
-  [[ -n "$symbols" ]] && print -n " $symbols "
+  err_prompt="%0(?..%{%F{red}%} $SYMBOL_ERR %? %f)"
+  jobs_prompt="%1(j.%{%F{cyan}%} $SYMBOL_JOB %j %f.)"
+  print -n "$err_prompt$jobs_prompt"
 }
 
+SYMBOL_CMD=" $ "
+SYMBOL_CMD_SU="%{%F{red}%} # %{%f%}"
 prompt_cmd() {
   print -n "%(!.$SYMBOL_CMD_SU.$SYMBOL_CMD)"
 }
