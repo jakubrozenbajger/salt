@@ -11,7 +11,6 @@ PROMPT_USER=${SALT_PROMPT_USER:-true}
 SEGMENT_SEPARATOR="${SALT_SEGMENT_SEPARATOR:-}"
 ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
 
-
 #disable default venv prompt
 "$PROMPT_VENV" && export VIRTUAL_ENV_DISABLE_PROMPT=true
 
@@ -20,9 +19,6 @@ VICMD_INDICATOR="NORMAL"
 VIINS_INDICATOR="INSERT"
 #VICMD_INDICATOR="N"
 #VIINS_INDICATOR="I"
-
-# Status symbols
-
 
 # Git symbols
 PLUSMINUS="\u00b1"
@@ -39,11 +35,6 @@ prompt_vi_mode() {
   else
     print -n "%B $VIINS_INDICATOR %b"
   fi
-}
-
-prompt_end() {
-  print -n "%{%k%}"
-  print -n "%{%f%}"
 }
 
 ### Prompt components
@@ -200,21 +191,18 @@ build_prompt() {
   prompt_dir
   "$PROMPT_VENV" && prompt_virtualenv
   "$PROMPT_GIT" && prompt_git
-  prompt_end
   print -n "\n"
   prompt_cmd
-  prompt_end
 }
 
 build_rprompt() {
   "$PROMPT_VI" && prompt_vi_mode
   "$PROMPT_DATE" && prompt_date
   "$PROMPT_TIME" && prompt_time
-  prompt_end
 }
 
 # shellcheck disable=SC2016,SC2034
-PROMPT='%{%f%b%k%}%B$(build_prompt)%b'
-RPROMPT='%{%f%b%k%}%B$(build_rprompt)%b'
+PROMPT='%B$(build_prompt)%b'
+RPROMPT='%B$(build_rprompt)%b'
 # shellcheck disable=SC2016,SC2034
 
