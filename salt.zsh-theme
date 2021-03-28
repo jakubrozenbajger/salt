@@ -6,7 +6,7 @@ PROMPT_TIME=${SALT_PROMPT_TIME:-true}
 PROMPT_VI=${SALT_PROMPT_VI:-true}
 PROMPT_VENV=${SALT_PROMPT_VENV:-true}
 PROMPT_GIT=${SALT_PROMPT_GIT:-true}
-PROMPT_USER_SMART=${SALT_PROMPT_USER_SMART:-true}
+PROMPT_USER=${SALT_PROMPT_USER:-true}
 
 SEGMENT_SEPARATOR="${SALT_SEGMENT_SEPARATOR:-}"
 ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
@@ -16,13 +16,14 @@ ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
 "$PROMPT_VENV" && export VIRTUAL_ENV_DISABLE_PROMPT=true
 
 # Vi mode indicators
-#VICMD_INDICATOR="NORMAL"
-#VIINS_INDICATOR="INSERT"
-VICMD_INDICATOR="N"
-VIINS_INDICATOR="I"
+VICMD_INDICATOR="NORMAL"
+VIINS_INDICATOR="INSERT"
+#VICMD_INDICATOR="N"
+#VIINS_INDICATOR="I"
 
 # Status symbols
-SYMBOL_CMD_ERR="\u2718"
+SYMBOL_CMD=" $ "
+SYMBOL_ERR="\u2718"
 SYMBOL_ROOT="\u26a1"
 SYMBOL_JOB="\u2699"
 
@@ -55,17 +56,15 @@ prompt_end() {
 }
 
 ### Prompt components
-# Each component will draw itself, and hide itself if no information needs to be shown
-
-# Context: user@hostname (who am I and where am I)
+# who am I and where am I - if root red{user@host} else on remote magenta{user@host}, on local - {user}
 prompt_context() {
-  if [[ -n "$SSH_CLIENT" ]]; then
-    print -n "%{${fg_bold[white]}%(!.%{%F{white}%}.)%}$USER@%m%{${fg_no_bold[white]}%}"
+  local ctx
+  if [ -n "$SSH_CLIENT" ]; then
+    ctx="%{%F{magenta}%} %n@%m %{%f%}"
   else
-    if ! "$PROMPT_USER_SMART" || [ "$UID" -ne 1000 ]; then
-      print -n "%n "
-    fi
+    $PROMPT_USER && ctx=" %n "
   fi
+  print -n "%(!.%{%F{white}%K{red}%} %n@%m %{%k%}%{%f%}.${ctx:-})"
 }
 
 prompt_git() {
@@ -171,7 +170,7 @@ prompt_git() {
 
 # Dir: current working directory
 prompt_dir() {
-  print -n "%~ "
+  print -n " %~ "
 }
 
 # Virtualenv: current working virtualenv
@@ -197,11 +196,12 @@ prompt_time() {
 prompt_status() {
   local symbols
   symbols=""
-  [[ $RETVAL -ne 0 ]] && symbols="${symbols+$symbols }%{%F{red}%}$SYMBOL_CMD_ERR $RETVAL%f"
-  [[ $UID -eq 0 ]] && symbols="${symbols+$symbols }%{%F{yellow}%}$SYMBOL_ROOT%f"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="${symbols+$symbols }%{%F{cyan}%}$SYMBOL_JOB%f"
+  [[ $RETVAL -ne 0 ]] && symbols="${symbols:+$symbols }%{%F{red}%}$SYMBOL_ERR $RETVAL%f"
+  [[ $UID -eq 0 ]] && symbols="${symbols:+$symbols }%{%F{yellow}%}$SYMBOL_ROOT%f"
+  local jobs_no; jobs_no=$(jobs -l | wc -l)
+  [[ "$jobs_no" -gt 0 ]] && symbols="${symbols:+$symbols }%{%F{cyan}%}$SYMBOL_JOB $jobs_no%f"
 
-  [[ -n "$symbols" ]] && print -n "$symbols"
+  [[ -n "$symbols" ]] && print -n " $symbols "
 }
 
 ## Main prompt
@@ -209,17 +209,25 @@ build_prompt() {
   RETVAL=$?
   print -n "\n"
   prompt_status
-  "$PROMPT_DATE" && prompt_date
-  "$PROMPT_TIME" && prompt_time
   prompt_context
   prompt_dir
   "$PROMPT_VENV" && prompt_virtualenv
   "$PROMPT_GIT" && prompt_git
   prompt_end
   print -n "\n"
+  print -n "$SYMBOL_CMD"
+  prompt_end
+}
+
+build_rprompt() {
   "$PROMPT_VI" && prompt_vi_mode
+  "$PROMPT_DATE" && prompt_date
+  "$PROMPT_TIME" && prompt_time
   prompt_end
 }
 
 # shellcheck disable=SC2016,SC2034
-PROMPT='%{%f%b%k%}%B% $(build_prompt)%b'
+PROMPT='%{%f%b%k%}%B$(build_prompt)%b'
+RPROMPT='%{%f%b%k%}%B$(build_rprompt)%b'
+# shellcheck disable=SC2016,SC2034
+
