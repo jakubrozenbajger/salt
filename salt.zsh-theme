@@ -1,39 +1,31 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
-#
-# prompt settings
-PROMPT_DATE=${SALT_PROMPT_DATE:-false}
-PROMPT_TIME=${SALT_PROMPT_TIME:-true}
-PROMPT_VI=${SALT_PROMPT_VI:-true}
-PROMPT_VENV=${SALT_PROMPT_VENV:-true}
-PROMPT_GIT=${SALT_PROMPT_GIT:-true}
-PROMPT_USER=${SALT_PROMPT_USER:-true}
 
-SEGMENT_SEPARATOR="${SALT_SEGMENT_SEPARATOR:-}"
-ENDL_SEPARATOR="${SALT_ENDL_SEPARATOR:-}"
+# prompt settings
+_show_date=${SALT_SHOW_DATE:-false}
+_show_time=${SALT_SHOW_TIME:-true}
+_show_vi=${SALT_SHOW_VI:-true}
+_show_venv=${SALT_SHOW_VENV:-true}
+_show_git=${SALT_SHOW_GIT:-true}
+_show_user=${SALT_SHOW_USER:-true}
 
 #disable default venv prompt
-"$PROMPT_VENV" && export VIRTUAL_ENV_DISABLE_PROMPT=true
+"$_show_venv" && export VIRTUAL_ENV_DISABLE_PROMPT=true
 
-# Vi mode indicators
+#
 VICMD_INDICATOR="NORMAL"
 VIINS_INDICATOR="INSERT"
 #VICMD_INDICATOR="N"
 #VIINS_INDICATOR="I"
-
-# Git symbols
-PLUSMINUS="\u00b1"
-BRANCH="\uf126"
-
-# Vi mode
 prompt_vi_mode() {
+  "$_show_vi" || return;
   local mode
   is_normal() {
     test -n "${${KEYMAP/vicmd/$VICMD_INDICATOR}/(main|viins)/}"  # param expans
   }
   if is_normal; then
-    print -n "%S%B $VICMD_INDICATOR %b%s"
+    print -n "%S $VICMD_INDICATOR %s"
   else
-    print -n "%B $VIINS_INDICATOR %b"
+    print -n " $VIINS_INDICATOR "
   fi
 }
 
@@ -44,16 +36,25 @@ prompt_context() {
   if [ -n "$SSH_CLIENT" ]; then
     ctx="%{%F{magenta}%} %n@%m %{%f%}"
   else
-    $PROMPT_USER && ctx=" %n "
+    $_show_user && ctx=" %n "
   fi
   print -n "%(!.%{%F{white}%K{red}%} %n@%m %{%k%}%{%f%}.${ctx:-})"
 }
 
-prompt_git() {
-  # if not inside git repo do nothing
-  if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ]; then
-    return;
+prompt_virtualenv() {
+  "$_show_venv" || return;
+  local virtualenv_path="$VIRTUAL_ENV"
+  if [[ -n $virtualenv_path ]]; then
+    print -n "%{%F{blue}%}  $(basename "$virtualenv_path") %{%f%}"
   fi
+}
+
+PLUSMINUS="\u00b1"
+BRANCH="\uf126"
+prompt_git() {
+  "$_show_git" || return;
+  # if not inside git repo do nothing
+  [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ] && return;
 
   local ref dirty mode repo_path clean has_upstream
   local modified untracked added deleted tagged stashed
@@ -153,18 +154,13 @@ prompt_dir() {
   print -n " %~ "
 }
 
-prompt_virtualenv() {
-  local virtualenv_path="$VIRTUAL_ENV"
-  if [[ -n $virtualenv_path ]]; then
-    print -n "%{%F{blue}%}  $(basename "$virtualenv_path") %{%f%}"
-  fi
-}
-
 prompt_date() {
+  "$_show_date" || return;
   print -n " %D{%Y-%m-%d} "
 }
 
 prompt_time() {
+  "$_show_time" || return;
   print -n " %D{%H:%M} "
 }
 
@@ -189,16 +185,16 @@ build_prompt() {
   prompt_status
   prompt_context
   prompt_dir
-  "$PROMPT_VENV" && prompt_virtualenv
-  "$PROMPT_GIT" && prompt_git
+  prompt_virtualenv
+  prompt_git
   print -n "\n"
   prompt_cmd
 }
 
 build_rprompt() {
-  "$PROMPT_VI" && prompt_vi_mode
-  "$PROMPT_DATE" && prompt_date
-  "$PROMPT_TIME" && prompt_time
+  prompt_vi_mode
+  prompt_date
+  prompt_time
 }
 
 # shellcheck disable=SC2016,SC2034
