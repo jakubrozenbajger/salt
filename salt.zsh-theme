@@ -23,6 +23,7 @@ VIINS_INDICATOR="INSERT"
 
 # Status symbols
 SYMBOL_CMD=" $ "
+SYMBOL_CMD_SU="%{%F{red}%} # %{%f%}"
 SYMBOL_ERR="\u2718"
 SYMBOL_ROOT="\u26a1"
 SYMBOL_JOB="\u2699"
@@ -40,13 +41,9 @@ prompt_vi_mode() {
     test -n "${${KEYMAP/vicmd/$VICMD_INDICATOR}/(main|viins)/}"  # param expans
   }
   if is_normal; then
-    mode="$VICMD_INDICATOR"
-#    print -n "%B $mode %b"
-    print -n "%S%B $mode %b%s"
+    print -n "%S%B $VICMD_INDICATOR %b%s"
   else
-    mode="$VIINS_INDICATOR"
-#    print -n "%S%B $mode %b%s"
-    print -n "%B $mode %b"
+    print -n "%B $VIINS_INDICATOR %b"
   fi
 }
 
@@ -167,17 +164,14 @@ prompt_git() {
   print -n " %f"
 }
 
-
-# Dir: current working directory
 prompt_dir() {
   print -n " %~ "
 }
 
-# Virtualenv: current working virtualenv
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path ]]; then
-    print -n "%{${fg_bold[blue]}%}  $(basename "$virtualenv_path")%{${fg_no_bold[blue]}%} "
+    print -n "%{%F{blue}%}  $(basename "$virtualenv_path") %{%f%} "
   fi
 }
 
@@ -204,6 +198,10 @@ prompt_status() {
   [[ -n "$symbols" ]] && print -n " $symbols "
 }
 
+prompt_cmd() {
+  print -n "%(!.$SYMBOL_CMD_SU.$SYMBOL_CMD)"
+}
+
 ## Main prompt
 build_prompt() {
   RETVAL=$?
@@ -215,7 +213,7 @@ build_prompt() {
   "$PROMPT_GIT" && prompt_git
   prompt_end
   print -n "\n"
-  print -n "$SYMBOL_CMD"
+  prompt_cmd
   prompt_end
 }
 
