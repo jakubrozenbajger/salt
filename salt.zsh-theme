@@ -72,8 +72,9 @@ prompt_git() {
 
   local ref dirty mode repo_path clean has_upstream
   local modified untracked added deleted tagged stashed
-  local ready_commit git_status g_color
+  local ready_commit git_status
   local commits_diff commits_ahead commits_behind has_diverged to_push to_pull
+  local g_prompt_color
 
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
@@ -82,10 +83,10 @@ prompt_git() {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
   if [[ -n $dirty ]]; then
     clean=''
-    g_color='yellow'
+    g_prompt_color='yellow'
   else
     clean=' ✔'
-    g_color='green'
+    g_prompt_color='green'
   fi
 
   local upstream; upstream=$(git rev-parse --symbolic-full-name --abbrev-ref "@{upstream}" 2> /dev/null)
@@ -103,7 +104,7 @@ prompt_git() {
   local number_modified; number_modified=$(\grep -c "^.M" <<< "${git_status}")
   if [[ $number_modified -gt 0 ]]; then
     modified=" $number_modified●"
-    g_color='red'
+    g_prompt_color='red'
   fi
 
   local number_added_modified; number_added_modified=$(\grep -c "^M" <<< "${git_status}")
@@ -117,7 +118,7 @@ prompt_git() {
   local number_deleted; number_deleted=$(\grep -c "^.D" <<< "${git_status}")
   if [[ $number_deleted -gt 0 ]]; then
     deleted=" $number_deleted‒"
-    g_color='red'
+    g_prompt_color='red'
   fi
 
   local number_added_deleted; number_added_deleted=$(\grep -c "^D" <<< "${git_status}")
@@ -149,7 +150,7 @@ prompt_git() {
   has_diverged=false
   if [[ $commits_ahead -gt 0 && $commits_behind -gt 0 ]]; then has_diverged=true; fi
   if [[ $has_diverged == false && $commits_ahead -gt 0 ]]; then to_push=" ↑$commits_ahead"; fi
-  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" ${fg_bold[red]}↓$commits_behind${fg_bold[$g_color]}"; fi
+  if [[ $has_diverged == false && $commits_behind -gt 0 ]]; then to_pull=" ${fg_bold[red]}↓$commits_behind${fg_bold[$g_prompt_color]}"; fi
 
   if [[ -e "${repo_path}/BISECT_LOG" ]]; then
     mode=" <B>"
@@ -159,9 +160,8 @@ prompt_git() {
     mode=" >R>"
   fi
 
-  print -n "%F{$g_color} "
-  print -n "%{${fg_bold[$g_color]}%}${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit%{${fg_no_bold[$g_color]}%}"
-  print -n " %f"
+  g_prompt_txt="${ref/refs\/heads\//$BRANCH $upstream_prompt}${mode}$to_push$to_pull$clean$tagged$stashed$untracked$modified$deleted$added$ready_commit"
+  print -n "%F{$g_prompt_color} $g_prompt_txt %f"
 }
 
 prompt_dir() {
@@ -171,7 +171,7 @@ prompt_dir() {
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path ]]; then
-    print -n "%{%F{blue}%}  $(basename "$virtualenv_path") %{%f%} "
+    print -n "%{%F{blue}%}  $(basename "$virtualenv_path") %{%f%}"
   fi
 }
 
