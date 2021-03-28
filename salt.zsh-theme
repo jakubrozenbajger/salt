@@ -1,5 +1,7 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 
+setopt prompt_subst
+
 # prompt settings
 _show_date=${SALT_SHOW_DATE:-false}
 _show_time=${SALT_SHOW_TIME:-true}
@@ -11,7 +13,6 @@ _show_user=${SALT_SHOW_USER:-true}
 #disable default venv prompt
 "$_show_venv" && export VIRTUAL_ENV_DISABLE_PROMPT=true
 
-#
 VICMD_INDICATOR="NORMAL"
 VIINS_INDICATOR="INSERT"
 #VICMD_INDICATOR="N"
@@ -29,8 +30,6 @@ prompt_vi_mode() {
   fi
 }
 
-### Prompt components
-# who am I and where am I - if root red{user@host} else on remote magenta{user@host}, on local - {user}
 prompt_context() {
   local ctx
   if [ -n "$SSH_CLIENT" ]; then
@@ -38,6 +37,7 @@ prompt_context() {
   else
     $_show_user && ctx=" %n "
   fi
+  # if root red{user@host} else on remote magenta{user@host}, on local - {user}
   print -n "%(!.%{%F{white}%K{red}%} %n@%m %{%k%}%{%f%}.${ctx:-})"
 }
 
@@ -180,7 +180,6 @@ prompt_cmd() {
 
 ## Main prompt
 build_prompt() {
-  RETVAL=$?
   print -n "\n"
   prompt_status
   prompt_context
