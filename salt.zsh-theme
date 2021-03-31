@@ -3,6 +3,7 @@
 setopt prompt_subst
 
 # prompt settings
+_prompt_start=$(${SALT_BOLD_PROMPT:-false} && echo "%S %s" || echo "")
 _show_date=${SALT_SHOW_DATE:-false}
 _show_time=${SALT_SHOW_TIME:-true}
 _show_vi=${SALT_SHOW_VI:-true}
@@ -180,13 +181,13 @@ prompt_cmd() {
 
 ## Main prompt
 build_prompt() {
-  print -n "\n"
+  print -n "\n$_prompt_start"
   prompt_status
   prompt_context
   prompt_dir
   prompt_virtualenv
   prompt_git
-  print -n "\n"
+  print -n "\n$_prompt_start"
   prompt_cmd
 }
 
@@ -200,4 +201,3 @@ build_rprompt() {
 PROMPT='%B$(build_prompt)%b'
 RPROMPT='%B$(build_rprompt)%b'
 # shellcheck disable=SC2016,SC2034
-
